@@ -1,13 +1,13 @@
 {
-    "Program Name": "Flight Route Simulator",
+    "Program Name": "Explore Reactor Room",
     "Author": "Shallwe",
-    "Version": "1.0.0",
+    "Version": "1.0.1",
     "Author's Github": "https://github.com/shallwe999",
 
     "window_size_comment": "调整游戏窗口大小，数字范围为整数15~30（推荐25），对应分辨率公式为[32*window_size+60 x 28*window_size+60]",
     "window_size": 25,
 
-    "route_points_comment": "调整轨迹显示长度，数字范围为整数10~100（推荐50）",
-    "route_points": 50
+    "route_points_comment": "调整轨迹显示长度，数字范围为整数10~100（推荐60）",
+    "route_points": 60
     
 }
