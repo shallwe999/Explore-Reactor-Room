@@ -1,13 +1,15 @@
 {
     "Program Name": "Explore Reactor Room",
     "Author": "Shallwe",
-    "Version": "1.0.2",
+    "Version": "1.0.3",
     "Author's Github": "https://github.com/shallwe999",
 
     "window_size_comment": "调整游戏窗口大小，数字范围为整数15~30（推荐25），对应分辨率公式为[32*window_size+60 x 28*window_size+60]",
     "window_size": 25,
 
     "route_points_comment": "调整轨迹显示长度，数字范围为整数10~100（推荐60）",
-    "route_points": 60
+    "route_points": 60,
     
+    "lazer_shown_comment": "调整飞机发射激光图案，使用布尔变量，true为激光图片，false为普通圆圈（推荐true）",
+    "lazer_shown": true
 }
