@@ -1,7 +1,7 @@
 {
     "Program Name": "Explore Reactor Room",
     "Author": "Shallwe",
-    "Version": "1.1.0",
+    "Version": "1.1.1",
     "Author's Github": "https://github.com/shallwe999",
 
     "window_size_comment": "调整游戏窗口大小，数字范围为整数15~30（推荐25），对应分辨率公式为[32*window_size+60 x 28*window_size+60]",
