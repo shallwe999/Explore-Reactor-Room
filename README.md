@@ -4,13 +4,18 @@
 ### 应用程序信息
 - 名称：Explore Reactor Room (aka. Flight Route Simulator)
 - 作者：Shallwe
-- 日期：2018/10/16
-- 当前版本：v1.1.1
-- 适用操作系统：Windows7及以上
+- 日期：2018/11/14
+- 当前版本：v1.1.2
+- 应用程序适用操作系统：Windows7及以上
 
 - - - - - - -  
-### 运行方法
-- 将全部内容打包下载（[打包下载链接](https://codeload.github.com/shallwe999/Explore-Reactor-Room/zip/master)）。解压后双击exe程序即可运行。
+### 应用程序运行方法
+- 将应用程序压缩包下载（[打包下载链接](https://github.com/shallwe999/Explore-Reactor-Room/blob/master/explore_reactor_room_APP.zip?raw=true)）。解压后双击exe程序即可运行。
+
+- - - - - - -  
+### 开源代码运行方法
+- 将全部内容下载。在终端输入 `python main.py` 即可运行。
+- 需要安装pygame, numpy, qrcode模块。
 
 - - - - - - -  
 ### 游戏截图
@@ -58,11 +63,6 @@
 
 
 - - - - - - -  
-### 内部实现
-- 编程语言：Python
-- 关键模块：pygame, numpy, qrcode
-
-- - - - - - -  
 ### 修订记录
 - v1.0.0 (2018/10/10)  
     - 正式发布。
@@ -76,3 +76,5 @@
     - 丰富游戏规则，优化游戏界面，加密排行榜文件。
 - v1.1.1 (2018/10/16)  
     - 修复二维码部分的BUG。
+- v1.1.2 (2018/11/14)
+    - 优化程序架构。
