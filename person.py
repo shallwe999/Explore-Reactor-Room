@@ -9,7 +9,7 @@ class Person():
         self.settings = settings
         self.screen = screen
         self.screen_rect = screen.get_rect()
-        self.max_v = 0.3
+        self.max_v = 0.225
         self.route_points = self.settings.route_points
         self.reinit(size, init_pos)
 
@@ -31,13 +31,19 @@ class Person():
         
         self._hp = 10
         self._hit_time = -10
+        self.healing_protect = False
 
         # Load the image (using relative path in Windows)
         for i in range(6):
-            self._gifs[i] = pygame.image.load(r".\images\p{0:d}.jpg".format(i+1))
+            self._gifs[i] = pygame.image.load(r".\images\p{0:d}.png".format(i+1))
             self._gifs[i].set_alpha(220)
-        self.image = pygame.transform.scale(self._gifs[0], (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
-        self.rect = self.image.get_rect()
+        self._gif = pygame.transform.scale(self._gifs[0], (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
+        self.rect = self._gif.get_rect()
+
+        # Load the shield image
+        self._shield_img = pygame.image.load(r".\images\shield.png")
+        self._shield_img = pygame.transform.scale(self._shield_img, (int(self._size_x*3 * self.settings.screen_scale), int(self._size_y*3 * self.settings.screen_scale)))
+        self._shield_rect = self._shield_img.get_rect()
 
         # Set the position using float
         self.rect.centerx = self._p_x
@@ -117,10 +123,15 @@ class Person():
                 % (self._p_x, self._p_y, self._v_x / self.settings.time_period, self._v_y / self.settings.time_period))
 
     def drawing(self):
-        """ Draw the ship in the specific position """
+        """ Draw the image in the specific position """
         self.rect.centerx = self._p_x * self.settings.screen_scale + self.settings.screen_offset
         self.rect.centery = self._p_y * self.settings.screen_scale + self.settings.screen_offset
-        self.screen.blit(self.image, self.rect)
+        self.screen.blit(self._gif, self.rect)
+
+    def draw_shield(self):
+        self._shield_rect.centerx = self._p_x * self.settings.screen_scale + self.settings.screen_offset
+        self._shield_rect.centery = self._p_y * self.settings.screen_scale + self.settings.screen_offset
+        self.screen.blit(self._shield_img, self._shield_rect)
 
     def update_routes(self):
         temp_points = self.route_points - 1
@@ -139,10 +150,10 @@ class Person():
         else:
             self._now_gif = self._now_gif + 1
         if not ontitle:
-            self.image = pygame.transform.scale(self._gifs[self._now_gif], (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
+            self._gif = pygame.transform.scale(self._gifs[self._now_gif], (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
         else:  # show person on the title, bigger
-            self.image = pygame.transform.scale(self._gifs[self._now_gif], (int(1.4*self._size_x * self.settings.screen_scale), int(1.4*self._size_y * self.settings.screen_scale)))
-        self.rect = self.image.get_rect()
+            self._gif = pygame.transform.scale(self._gifs[self._now_gif], (int(1.4*self._size_x * self.settings.screen_scale), int(1.4*self._size_y * self.settings.screen_scale)))
+        self.rect = self._gif.get_rect()
 
     def get_hp_info(self):
         return [self._hp, self._hit_time]
@@ -154,5 +165,5 @@ class Person():
     def heal(self, new_hit_time):
         self._hp = min(self._hp + 1, 10)
         self._hit_time = new_hit_time
-
+        self.healing_protect = True
 

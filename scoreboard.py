@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pygame
-import csv
+import base64
 
 class ScoreBoard():
     """ Show the infomation of scores """
@@ -17,24 +17,42 @@ class ScoreBoard():
     def get_hiscore_string(self):
         return self._hiscore_string
 
+
     def read_hiscore(self):
-        """ Read hiscore to the stats, .csv file required """
-        table_data = []
-        line_index = 0
-        with open(self._file_name, "r", encoding = "utf-8-sig") as f:
-            for line in f:
-                table_data.append( list(map(float, (line.strip() + ',').split(',')[:5])) )  #加逗号防止寻索引溢出
-                line_index += 1
-                if line_index >= 3:
-                    break
-        self._stats = table_data  # stats 3x5
+        """ Read hiscore to the stats, .csv file required. If not found, then create. """
+        try:
+            table_data = []
+            line_index = 0
+            with open(self._file_name, "r", encoding = "utf-8-sig") as f:
+                for line in f:
+                    encoded_strings = (line.strip() + ',').split(',')[:5]  #加逗号防止寻索引溢出
+                    for index in range(5):
+                        encoded_strings[index] = str(base64.b64decode(encoded_strings[index].encode('utf-8')), 'utf-8')  # base64解密
+                        encoded_strings[index] = float(encoded_strings[index][::2])  # 切片取出数据
+                    table_data.append(encoded_strings)
+                    line_index += 1
+                    if line_index >= 3:
+                        break
+            self._stats = table_data  # stats 3x5
+        except:  # Did not find the csv file, create it.
+            # check if it is empty
+            if self._stats == []:
+                self.clean_hiscore()
+                self.write_hiscore()
+                self.read_hiscore()
 
 
     def write_hiscore(self):
-        """ Write hiscore to the file, .csv file required """
+        """ Write hiscore to the file, .csv file required. """
         with open(self._file_name, "w", encoding = "utf-8-sig") as f:
             for line_index in range(3):
-                out_str = "{0:.2f},{1:.2f},{2:.2f},{3:.2f},{4:.2f},".format(self._stats[line_index][0],self._stats[line_index][1],self._stats[line_index][2],self._stats[line_index][3],self._stats[line_index][4])
+                encoded_strings = ["" for i in range(5)]
+                for index in range(5):
+                    temp_string = str(self._stats[line_index][index])
+                    for i in range(len(temp_string)):
+                        encoded_strings[index] = encoded_strings[index] + temp_string[i] + temp_string[i]  # 存入数据预先处理
+                    encoded_strings[index] = str(base64.b64encode(encoded_strings[index].encode('utf-8')), 'utf-8')  # base64加密
+                out_str = "{0:s},{1:s},{2:s},{3:s},{4:s},".format(encoded_strings[0], encoded_strings[1], encoded_strings[2], encoded_strings[3], encoded_strings[4])
                 print(out_str, file=f)
 
 

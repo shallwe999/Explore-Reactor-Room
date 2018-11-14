@@ -2,6 +2,7 @@
 import pygame
 import math
 from pygame.sprite import Sprite
+import random
 
 class EnemyFlight(Sprite):
     def __init__(self, size, init_pos, settings, screen, rotate_angle=0):
@@ -12,7 +13,7 @@ class EnemyFlight(Sprite):
         self.settings = settings
         self.screen = screen
         self.screen_rect = screen.get_rect()
-        self.max_v = 0.2  # max 1m/s
+        self.max_v = 0.15  # max 1m/s
         self.attack_radius = 2.1
         self.attack_limit_time = 5.0
         self.route_points = self.settings.route_points
@@ -32,10 +33,20 @@ class EnemyFlight(Sprite):
         self._rotate_angle = rotate_angle
         self._now_angle = 0
 
-        # Load the image (using relative path in Windows)
-        self.image = pygame.image.load(r".\images\f2.jpg")
-        self.image = pygame.transform.scale(self.image, (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
-        self.rect = self.image.get_rect()
+        # Load the images (using relative path in Windows) (same size)
+        self.image1 = pygame.image.load(r".\images\f2_1.png")
+        self.image1 = pygame.transform.scale(self.image1, (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
+        self.image2 = pygame.image.load(r".\images\f2_2.png")
+        self.image2 = pygame.transform.scale(self.image2, (int(self._size_x * self.settings.screen_scale), int(self._size_y * self.settings.screen_scale)))
+        self.rect = self.image1.get_rect()
+        self.image_index = random.randint(1, 2)
+
+        # Load the lazer image
+        if self.settings.lazer_shown:
+            self.lazer_img = pygame.image.load(r".\images\lazer2.png")
+            self.lazer_radius = self.attack_radius * 0.625  # (/ 0.8 / 2)
+            self.lazer_img_1 = pygame.transform.scale(self.lazer_img, (int(self.lazer_radius * self.settings.screen_scale), int(self.lazer_radius * self.settings.screen_scale)))
+            self.lazer_img_2 = pygame.transform.scale(self.lazer_img, (int(self.lazer_radius*2 * self.settings.screen_scale), int(self.lazer_radius*2 * self.settings.screen_scale)))
 
         # Set the position using float
         self.rect.centerx = self._p_x
@@ -105,17 +116,35 @@ class EnemyFlight(Sprite):
         """ Draw the ship in the specific position """
         self.rect.centerx = self._p_x * self.settings.screen_scale + self.settings.screen_offset
         self.rect.centery = self._p_y * self.settings.screen_scale + self.settings.screen_offset
-        self.screen.blit(self.image, self.rect)
+        if self.image_index == 1:
+            self.screen.blit(self.image1, self.rect)
+            if not self.settings.paused:  # if pause, not move
+                self.image_index = 2
+        elif self.image_index == 2:
+            self.screen.blit(self.image2, self.rect)
+            if not self.settings.paused:  # if pause, not move
+                self.image_index = 1
 
     def draw_attack_circle(self):
         """ Draw the attack circle """
         if self.attack_success_time > self.attack_limit_time * 0.2:  # display 80% time
             self.attack_success_time = self.attack_success_time - self.settings.time_period
-            centerx = int(self._p_x * self.settings.screen_scale + self.settings.screen_offset)
-            centery = int(self._p_y * self.settings.screen_scale + self.settings.screen_offset)
-            pygame.draw.circle(self.screen, (250, 50, 50), (centerx, centery), int(self.attack_radius * self.settings.screen_scale + 1), 2)
-            pygame.draw.circle(self.screen, (250, 50, 50), (centerx, centery), int(self.attack_radius / 3*2 * self.settings.screen_scale + 1), 2)
-            pygame.draw.circle(self.screen, (250, 50, 50), (centerx, centery), int(self.attack_radius / 3 * self.settings.screen_scale + 1), 2)
+            if self.settings.lazer_shown:
+                # draw two images            
+                self.lazer_img_1_rect = self.lazer_img_1.get_rect()
+                self.lazer_img_1_rect.center = self.rect.center
+                self.screen.blit(self.lazer_img_1, self.lazer_img_1_rect)
+                self.lazer_img_2_rect = self.lazer_img_2.get_rect()
+                self.lazer_img_2_rect.center = self.rect.center
+                self.screen.blit(self.lazer_img_2, self.lazer_img_2_rect)
+            else:
+                # draw three circles
+                centerx = int(self._p_x * self.settings.screen_scale + self.settings.screen_offset)
+                centery = int(self._p_y * self.settings.screen_scale + self.settings.screen_offset)
+                pygame.draw.circle(self.screen, (250, 50, 50), (centerx, centery), int(self.attack_radius * self.settings.screen_scale + 1), 2)
+                pygame.draw.circle(self.screen, (250, 50, 50), (centerx, centery), int(self.attack_radius / 3*2 * self.settings.screen_scale + 1), 2)
+                pygame.draw.circle(self.screen, (250, 50, 50), (centerx, centery), int(self.attack_radius / 3 * self.settings.screen_scale + 1), 2)
+
 
     def update_routes(self):
         temp_points = self.route_points - 1
@@ -131,14 +160,24 @@ class EnemyFlight(Sprite):
     def set_attack_args(self, attack_radius, attack_limit_time):
         self.attack_radius = attack_radius
         self.attack_limit_time = attack_limit_time
+        if self.settings.lazer_shown:
+            self.lazer_radius = self.attack_radius * 1.25  # (/ 0.8 / 2 * 2)
+            self.lazer_img_1 = pygame.transform.scale(self.lazer_img, (int(self.lazer_radius * self.settings.screen_scale), int(self.lazer_radius * self.settings.screen_scale)))
+            self.lazer_img_2 = pygame.transform.scale(self.lazer_img, (int(self.lazer_radius*2 * self.settings.screen_scale), int(self.lazer_radius*2 * self.settings.screen_scale)))
 
     def attack(self, person, boxes):
         p_person = person.get_info()[0]
         if not boxes.is_in_protect_box(p_person):  # not in the protect box
             if pow( pow(self._p_x - p_person[0], 2) + pow(self._p_y - p_person[1], 2) , 0.5 ) <= self.attack_radius:  # in the attack area
-                if self.settings.timer - person.get_hp_info()[1] >= self.attack_limit_time:  # out of time limitation
-                    person.hit(self.settings.timer)
-                    self.attack_success_time = self.attack_limit_time
+                if person.healing_protect:  # given heal
+                    if self.settings.timer - person.get_hp_info()[1] >= 5.0:  # (heal time: 5.0s) out of time limitation
+                        person.healing_protect = False
+                        person.hit(self.settings.timer)
+                        self.attack_success_time = self.attack_limit_time
+                else:
+                    if self.settings.timer - person.get_hp_info()[1] >= self.attack_limit_time:  # out of time limitation
+                        person.hit(self.settings.timer)
+                        self.attack_success_time = self.attack_limit_time
 
 
 
